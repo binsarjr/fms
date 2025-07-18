@@ -123,16 +123,13 @@ services:
         # Create new site with environment variables
         echo 'Creating new site...'
         if [ ! -d 'sites/$$SITE_NAME' ]; then
-          # Build command arguments for readability
-          BENCH_ARGS=(
-            --force
-            --admin-password $$ADMIN_PASSWORD
-            --db-root-password $$MYSQL_ROOT_PASSWORD
-            --set-default
-            --install-app erpnext
+          bench new-site $$SITE_NAME \
+            --force \
+            --admin-password $$ADMIN_PASSWORD \
+            --db-root-password $$MYSQL_ROOT_PASSWORD \
+            --set-default \
+            --install-app erpnext \
             --install-app lms
-          )
-          bench new-site $$SITE_NAME "$${BENCH_ARGS[@]}"
         else
           echo 'Site $$SITE_NAME already exists, skipping creation...'
         fi
