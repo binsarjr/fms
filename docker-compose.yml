@@ -39,14 +39,36 @@ x-frappe-service-with-configurator: &frappe-service-with-configurator
 services:
   backend:
     <<: *frappe-service-with-configurator
-    command: |
-      bash -c "
+    command:
+      - bash
+      - -c
+      - |
         echo 'Starting backend services...'
-        
-        
+
+        # Create new site with environment variables
+        echo "Creating new site..."
+        echo "Site name: $$SITE_NAME"
+
+        if [ ! -d "sites/$$SITE_NAME" ]; then
+          echo "Creating new site $$SITE_NAME..."
+          bench new-site $$SITE_NAME \
+            --force \
+            --admin-password $$ADMIN_PASSWORD \
+            --db-root-password $$MYSQL_ROOT_PASSWORD \
+            --set-default \
+            --install-app erpnext \
+            --install-app lms
+          
+          # Build frontend assets
+          echo "Building frontend assets..."
+          bench build || true
+        else
+          echo "Site $$SITE_NAME already exists, skipping creation..."
+        fi
+
+
         echo 'Site setup completed, starting server...'
         bench serve --port 8000 --noreload
-      "
     environment:
       <<: *common-environment
     volumes: *common-volumes-with-assets
@@ -107,7 +129,6 @@ services:
           fi
         done
 
-
         # Configure bench settings
         bench set-config -g db_host $$DB_HOST
         bench set-config -gp db_port $$DB_PORT
@@ -118,25 +139,6 @@ services:
 
         # Create apps.txt
         ls -1 apps > sites/apps.txt 2>/dev/null || true
-
-
-        # Create new site with environment variables
-        echo 'Creating new site...'
-        if [ ! -d 'sites/$$SITE_NAME' ]; then
-          bench new-site $$SITE_NAME \
-            --force \
-            --admin-password $$ADMIN_PASSWORD \
-            --db-root-password $$MYSQL_ROOT_PASSWORD \
-            --set-default \
-            --install-app erpnext \
-            --install-app lms
-        else
-          echo 'Site $$SITE_NAME already exists, skipping creation...'
-        fi
-
-        # Build frontend assets
-        echo "Building frontend assets..."
-        bench build
 
         echo "Configuration completed successfully"
     depends_on:
@@ -151,9 +153,10 @@ services:
       - -c
     environment:
       <<: *common-environment
-    volumes:
-      - ${FRAPPE_BENCH_PATH:-./frappe-bench}:/home/frappe/frappe-bench
-      - logs:/home/frappe/frappe-bench/logs
+    volumes: *common-volumes-with-assets
+    # volumes:
+    #   - ${FRAPPE_BENCH_PATH:-./frappe-bench}:/home/frappe/frappe-bench
+    #   - logs:/home/frappe/frappe-bench/logs
 
   db:
     command:
