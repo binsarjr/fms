@@ -1,0 +1,9 @@
+**/sites/frontend
+
+**/node_modules
+**/site-packages
+**/__pycache__
+
+
+# Environment Variables
+.env
