@@ -17,25 +17,7 @@
     "required": [],
     "idx": 2,
     "version": "15.70.1"
-  },
-  "lms": {
-    "is_repo": true,
-    "resolution": {
-      "commit_hash": "736ce8eb3fcf09b3655007357f2d2841f5db5ace",
-      "branch": "main"
-    },
-    "required": [],
-    "idx": 3,
-    "version": "2.31.0"
-  },
-  "hospitality": {
-    "is_repo": true,
-    "resolution": {
-      "commit_hash": "2003ff8db7d7fbc453a9d14da0f971b9186a0b4b",
-      "branch": "develop"
-    },
-    "required": [],
-    "idx": 4,
-    "version": "0.0.1"
   }
 }
+
+
