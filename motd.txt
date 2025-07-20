@@ -1,0 +1,17 @@
+__   ____  __ ____        _____ ____  ____  
+\ \ / /  \/  / ___|      | ____|  _ \|  _ \ 
+ \ V /| |\/| \___ \ _____|  _| | |_) | |_) |
+  | | | |  | |___) |_____| |___|  _ <|  __/ 
+  |_| |_|  |_|____/      |_____|_| \_\_|    
+
+|----------Yayasan Ma'rufi Syihab ----------|
+
+Helper Commands:
+
+- sup status - check service status.
+- sup restart [service] - restart a service.
+- tail_all - tail all logs.
+- tail_backend - tail backend logs.
+- tail_nginx - tail nginx logs.
+
+.
