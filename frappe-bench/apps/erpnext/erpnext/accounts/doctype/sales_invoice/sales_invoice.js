@@ -113,7 +113,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					cur_frm.add_custom_button(
 						__("Delivery"),
 						cur_frm.cscript["Make Delivery Note"],
-						__("Create")
+						__("Create"),
 					);
 				}
 			}
@@ -124,12 +124,12 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					function () {
 						me.make_payment_request();
 					},
-					__("Create")
+					__("Create"),
 				);
 				this.frm.add_custom_button(
 					__("Invoice Discounting"),
 					this.make_invoice_discounting.bind(this),
-					__("Create")
+					__("Create"),
 				);
 
 				const payment_is_overdue = doc.payment_schedule
@@ -145,7 +145,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 				cur_frm.add_custom_button(
 					__("Maintenance Schedule"),
 					this.make_maintenance_schedule.bind(this),
-					__("Create")
+					__("Create"),
 				);
 			}
 		}
@@ -171,7 +171,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					function () {
 						me.make_inter_company_invoice();
 					},
-					__("Create")
+					__("Create"),
 				);
 			}
 		}
@@ -232,7 +232,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 			} else if (
 				in_list(
 					[cur_frm.pos_print_format, cur_frm.return_print_format],
-					cur_frm.meta.default_print_format
+					cur_frm.meta.default_print_format,
 				)
 			) {
 				cur_frm.meta.default_print_format = null;
@@ -261,7 +261,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					},
 				});
 			},
-			__("Get Items From")
+			__("Get Items From"),
 		);
 	}
 
@@ -290,7 +290,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					},
 				});
 			},
-			__("Get Items From")
+			__("Get Items From"),
 		);
 	}
 
@@ -321,7 +321,7 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 					},
 				});
 			},
-			__("Get Items From")
+			__("Get Items From"),
 		);
 	}
 
@@ -348,12 +348,12 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 				price_list: this.frm.doc.selling_price_list,
 				pos_profile: pos_profile,
 				fetch_payment_terms_template: cint(
-					(this.frm.doc.is_return == 0) & !this.frm.doc.ignore_default_payment_terms_template
+					(this.frm.doc.is_return == 0) & !this.frm.doc.ignore_default_payment_terms_template,
 				),
 			},
 			function () {
 				me.apply_pricing_rule();
-			}
+			},
 		);
 
 		if (this.frm.doc.customer) {
@@ -412,8 +412,8 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 				"write_off_amount",
 				flt(
 					this.frm.doc.grand_total - this.frm.doc.paid_amount - this.frm.doc.total_advance,
-					precision("write_off_amount")
-				)
+					precision("write_off_amount"),
+				),
 			);
 		}
 
@@ -553,12 +553,12 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 		this.frm.set_df_property(
 			"additional_discount_account",
 			"hidden",
-			1 - this.frm.doc.is_cash_or_non_trade_discount
+			1 - this.frm.doc.is_cash_or_non_trade_discount,
 		);
 		this.frm.set_df_property(
 			"additional_discount_account",
 			"reqd",
-			this.frm.doc.is_cash_or_non_trade_discount
+			this.frm.doc.is_cash_or_non_trade_discount,
 		);
 
 		if (!this.frm.doc.is_cash_or_non_trade_discount) {
@@ -865,7 +865,7 @@ frappe.ui.form.on("Sales Invoice", {
 		if (frm.redemption_conversion_factor) {
 			let loyalty_amount = flt(
 				frm.redemption_conversion_factor * flt(frm.doc.loyalty_points),
-				precision("loyalty_amount")
+				precision("loyalty_amount"),
 			);
 			var remaining_amount =
 				flt(frm.doc.grand_total) - flt(frm.doc.total_advance) - flt(frm.doc.write_off_amount);
@@ -919,7 +919,7 @@ frappe.ui.form.on("Sales Invoice", {
 			row.doctype,
 			row.name,
 			"qty",
-			timesheets.reduce((a, b) => a + (b["billing_hours"] || 0.0), 0.0)
+			timesheets.reduce((a, b) => a + (b["billing_hours"] || 0.0), 0.0),
 		);
 	},
 
@@ -945,7 +945,7 @@ frappe.ui.form.on("Sales Invoice", {
 				const exchange_rate = await frm.events.get_exchange_rate(
 					frm,
 					timesheet.currency,
-					frm.doc.currency
+					frm.doc.currency,
 				);
 				frm.events.append_time_log(frm, timesheet, exchange_rate);
 			} else {
@@ -998,11 +998,11 @@ frappe.ui.form.on("Sales Invoice", {
 	calculate_timesheet_totals: function (frm) {
 		frm.set_value(
 			"total_billing_amount",
-			frm.doc.timesheets.reduce((a, b) => a + (b["billing_amount"] || 0.0), 0.0)
+			frm.doc.timesheets.reduce((a, b) => a + (b["billing_amount"] || 0.0), 0.0),
 		);
 		frm.set_value(
 			"total_billing_hours",
-			frm.doc.timesheets.reduce((a, b) => a + (b["billing_hours"] || 0.0), 0.0)
+			frm.doc.timesheets.reduce((a, b) => a + (b["billing_hours"] || 0.0), 0.0),
 		);
 	},
 
@@ -1068,7 +1068,7 @@ frappe.ui.form.on("Sales Invoice", {
 					});
 					d.show();
 				},
-				__("Get Items From")
+				__("Get Items From"),
 			);
 		}
 

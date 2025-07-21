@@ -1662,7 +1662,7 @@
    "width": "50%"
   },
   {
-   "default": "Draft",
+   "default": "Unpaid",
    "fieldname": "status",
    "fieldtype": "Select",
    "hide_days": 1,
@@ -2189,7 +2189,7 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2025-06-26 14:06:56.773552",
+ "modified": "2025-07-21 11:52:28.710836",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",
