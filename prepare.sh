@@ -151,4 +151,4 @@ configure_system() {
 configure_system
 make_pths
 
-# chown -R frappe:frappe /home/frappe
+chown -R frappe:frappe /home/frappe/frappe-bench/sites

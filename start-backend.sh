@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Script ini hanya boleh dijalankan menggunakan user fappe, bukan root.
 
 set -e
 
@@ -9,6 +10,7 @@ REDIS_QUEUE=redis-queue:6379
 
 CURRENT_DIR=/home/frappe/frappe-bench
 FIRST_MARKER=/home/frappe/first_run
+INSTALLED_MARKER=/home/frappe/installed.txt
 
 echo "Current directory: $CURRENT_DIR"
 echo "Whoami: $(whoami)"
@@ -29,14 +31,14 @@ configure_bench() {
   bench set-config -g redis_queue "redis://$REDIS_QUEUE"
   bench set-config -g redis_socketio "redis://$REDIS_QUEUE"
   bench set-config -gp socketio_port $SOCKETIO_PORT
-  if [ -f "$FIRST_MARKER" ]; then
+  if [ ! -f "$INSTALLED_MARKER" ]; then
     echo "Building site (frontend) for the first time..."
     bench setup requirements
     ls -1 apps
     echo bench new-site frontend --force --mariadb-user-host-login-scope='%' --admin-password=$ROOT_PASSWORD --db-root-username=$ROOT_USERNAME --db-root-password=$ROOT_PASSWORD $(echo $(ls -1 ./apps | xargs -n1 echo --install-app))
     bench new-site frontend --force --mariadb-user-host-login-scope='%' --admin-password=$ROOT_PASSWORD --db-root-username=$ROOT_USERNAME --db-root-password=$ROOT_PASSWORD $(echo $(ls -1 ./apps | xargs -n1 echo --install-app))
     bench build
-    rm -f "$FIRST_MARKER"
+    echo "System installed." >"$INSTALLED_MARKER"
   fi
   echo "Configuration completed."
 }
