@@ -51,22 +51,20 @@ find_top_dirs() {
 make_pths() {
   # Setup pth files (ini diperlukan agar setiap app yg ada di apps/ bisa di-import dalam virtual environment).
   while IFS= read -r line; do
+    # Skip empty lines
     if [ -z "$line" ]; then
       continue
     fi
 
-    # trim whitespace from the line
-    name=$(echo "$line" | xargs)
+    name=$line
 
     # Create the filename with .pth extension
     filename="/home/frappe/frappe-bench/env/lib/python3.11/site-packages/${name}.pth"
 
-    echo "Linking pth apps/$name ..."
+    echo "Linking app apps/$name ..."
 
     # Create pth link to the app
     echo "/home/frappe/frappe-bench/apps/$name" >"$filename"
-
-    echo "Linking done."
   done <sites/apps.txt
 }
 
@@ -84,67 +82,26 @@ make_link() {
   ln -s "$safe_dir" "$dir"
 }
 
-configure_system() {
-  local symlink_path="/usr/bin/sup"
-  local target_cmd="/usr/bin/supervisorctl"
-  local bashrc_file="$HOME/.bashrc"
-  local tail_function="tail_all(){ tail -f /var/log/*.log; }"
-  local tail_nginx="tail_nginx(){ tail -f /var/log/nginx.log; }"
-  local tail_backend="tail_backend(){ tail -f /var/log/backend.log; }"
-
-  echo "Configuring system..."
-
-  mkdir -p /var/log/supervisor
-  mkdir -p /var/log/nginx
-
-  if [ ! -e "$target_cmd" ]; then
-    echo "Warning: $target_cmd not found. Skipping sup symlink creation." >&2
-  else
-    if [ -L "$symlink_path" ] || [ -e "$symlink_path" ]; then
-      echo "Sup symlink already exists at $symlink_path"
+containerize_dir() {
+  local dir=$1
+  if [ -d "$dir" ]; then
+    if [ -L "$dir" ]; then
+      echo "Directory $dir already in container."
     else
-      if ln -s "$target_cmd" "$symlink_path"; then
-        echo "Created symlink: $symlink_path -> $target_cmd"
-      else
-        echo "Error creating symlink $symlink_path" >&2
-      fi
+      make_link "$dir"
     fi
-  fi
-
-  if ! grep -q "^tail_all()" "$bashrc_file"; then
-    {
-      echo ""
-      echo "# Custom function to tail logs"
-      echo "$tail_function"
-      echo "$tail_nginx"
-      echo "$tail_backend"
-    } >>"$bashrc_file"
-    echo "Added helper function to $bashrc_file"
+  else
+    make_link "$dir"
   fi
 }
 
-# containerize_dir() {
-#   local dir=$1
-#   if [ -d "$dir" ]; then
-#     if [ -L "$dir" ]; then
-#       echo "Directory $dir already in container."
-#     else
-#       make_link "$dir"
-#     fi
-#   else
-#     make_link "$dir"
-#   fi
-# }
-#
-# # Check each directory in the array
-# for dir in "${DIRS_TO_CHECK[@]}"; do
-#   containerize_dir "$dir"
-# done
+# Check each directory in the array
+for dir in "${DIRS_TO_CHECK[@]}"; do
+  containerize_dir "$dir"
+done
+
+make_pths
+
 # find_top_dirs "node_modules" | while read -r dir; do
 #   containerize_dir "$dir"
 # done
-
-configure_system
-make_pths
-
-# chown -R frappe:frappe /home/frappe

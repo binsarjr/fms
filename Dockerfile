@@ -31,7 +31,6 @@ FROM base AS frappe
 USER frappe
 
 COPY motd.txt /etc/motd
-RUN touch /tmp/first_run
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
@@ -49,6 +48,7 @@ RUN bench init \
   echo "{}" > sites/common_site_config.json
 
 
+RUN touch /home/frappe/first_run
 COPY prepare.sh /usr/local/bin/prepare.sh
 COPY start-backend.sh /usr/local/bin/start-backend.sh
 

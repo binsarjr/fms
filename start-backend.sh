@@ -8,6 +8,7 @@ REDIS_CACHE=redis-cache:6379
 REDIS_QUEUE=redis-queue:6379
 
 CURRENT_DIR=/home/frappe/frappe-bench
+FIRST_MARKER=/home/frappe/first_run
 
 echo "Current directory: $CURRENT_DIR"
 echo "Whoami: $(whoami)"
@@ -15,7 +16,7 @@ echo "Whoami: $(whoami)"
 cd $CURRENT_DIR || exit 1
 
 configure_bench() {
-  echo "Configure bench settings..."
+  echo "Configuring bench settings..."
   cd "$CURRENT_DIR" || exit 1
   ls -1 apps >sites/apps.txt 2>/dev/null || true
   echo "DB_HOST: $DB_HOST"
@@ -28,15 +29,16 @@ configure_bench() {
   bench set-config -g redis_queue "redis://$REDIS_QUEUE"
   bench set-config -g redis_socketio "redis://$REDIS_QUEUE"
   bench set-config -gp socketio_port $SOCKETIO_PORT
-  if [ -f "/tmp/first_run" ]; then
+  if [ -f "$FIRST_MARKER" ]; then
     echo "Building site (frontend) for the first time..."
     bench setup requirements
     ls -1 apps
     echo bench new-site frontend --force --mariadb-user-host-login-scope='%' --admin-password=$ROOT_PASSWORD --db-root-username=$ROOT_USERNAME --db-root-password=$ROOT_PASSWORD $(echo $(ls -1 ./apps | xargs -n1 echo --install-app))
     bench new-site frontend --force --mariadb-user-host-login-scope='%' --admin-password=$ROOT_PASSWORD --db-root-username=$ROOT_USERNAME --db-root-password=$ROOT_PASSWORD $(echo $(ls -1 ./apps | xargs -n1 echo --install-app))
     bench build
-    rm /tmp/first_run
+    rm -f "$FIRST_MARKER"
   fi
+  echo "Configuration completed."
 }
 
 configure_bench
