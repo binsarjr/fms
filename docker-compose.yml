@@ -1,14 +1,5 @@
 name: frappe_docker
 
-# Extension fields for common configurations
-x-common-frappe-service: &common-frappe-service
-  image: ${FRAPPE_IMAGE:-frappe/erpnext}
-  platform: linux/arm64
-  pull_policy: always
-  restart: unless-stopped
-  networks:
-    default: null
-
 x-common-environment: &common-environment
   MYSQL_ROOT_PASSWORD: admin
   ADMIN_PASSWORD: admin
@@ -19,119 +10,7 @@ x-common-environment: &common-environment
   REDIS_QUEUE: redis-queue:6379
   SOCKETIO_PORT: "9000"
 
-x-common-volumes: &common-volumes
-  - ${FRAPPE_BENCH_PATH:-./frappe-bench}:/home/frappe/frappe-bench
-  - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites:/home/frappe/frappe-bench/sites
-  - logs:/home/frappe/frappe-bench/logs
-
-x-common-volumes-with-assets: &common-volumes-with-assets
-  - ${FRAPPE_BENCH_PATH:-./frappe-bench}:/home/frappe/frappe-bench
-  - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites:/home/frappe/frappe-bench/sites
-  - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites/assets:/home/frappe/frappe-bench/sites/assets
-  - logs:/home/frappe/frappe-bench/logs
-
-x-frappe-service-with-configurator: &frappe-service-with-configurator
-  <<: *common-frappe-service
-  depends_on:
-    configurator:
-      condition: service_completed_successfully
-
 services:
-  backend:
-    <<: *frappe-service-with-configurator
-    depends_on:
-      configurator:
-        condition: service_completed_successfully
-    networks:
-      default: null
-    environment:
-      <<: *common-environment
-    volumes: *common-volumes-with-assets
-
-  # backend2:
-  #   <<: *frappe-service-with-configurator
-  #   command:
-  #     - bash
-  #     - -c
-  #     - |
-  #       echo 'Starting backend services...'
-  #
-  #       # Create new site with environment variables
-  #       echo "Creating new site..."
-  #       echo "Site name: $$SITE_NAME"
-  #
-  #       if [ ! -d "sites/$$SITE_NAME" ]; then
-  #         echo "Creating new site $$SITE_NAME..."
-  #         bench new-site $$SITE_NAME \
-  #           --force \
-  #           --admin-password $$ADMIN_PASSWORD \
-  #           --db-root-password $$MYSQL_ROOT_PASSWORD \
-  #           --set-default \
-  #           --install-app erpnext
-  #
-  #         # Build frontend assets
-  #         echo "Building frontend assets..."
-  #         bench build || true
-  #       else
-  #         echo "Site $$SITE_NAME already exists, skipping creation..."
-  #       fi
-  #
-  #       echo 'Site setup completed, starting server...'
-  #       bench serve --port 8000 --noreload
-  #   environment:
-  #     <<: *common-environment
-  #   volumes: *common-volumes-with-assets
-
-  configurator:
-    <<: *common-frappe-service
-    restart: on-failure
-    networks:
-      default: null
-    command:
-      - |
-        ls -1 apps > sites/apps.txt 2>/dev/null || true
-
-        # Setup pth files (ini diperlukan agar setiap app yg ada di apps/ bisa di-import dalam virtual environment).
-        while IFS= read -r line; do
-            # Skip empty lines
-            if [ -z "$$line" ]; then
-                continue
-            fi
-
-            name=$$line
-
-            # Create the filename with .pth extension
-            filename="/home/frappe/frappe-bench/env/lib/python3.11/site-packages/$${name}.pth"
-
-            echo "Linking app apps/$$name ..."
-
-            # Create pth link to the app
-            echo "/home/frappe/frappe-bench/apps/$$name" > "$$filename"
-        done < sites/apps.txt
-
-        # Configure bench settings
-        bench set-config -g db_host $$DB_HOST
-        bench set-config -gp db_port $$DB_PORT
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE"
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE"
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"
-        bench set-config -gp socketio_port $$SOCKETIO_PORT
-
-        echo "Configuration completed successfully"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis-cache:
-        condition: service_healthy
-      redis-queue:
-        condition: service_healthy
-    entrypoint:
-      - bash
-      - -c
-    environment:
-      <<: *common-environment
-    volumes: *common-volumes-with-assets
-
   db:
     command:
       - --character-set-server=utf8mb4
@@ -156,45 +35,35 @@ services:
         target: /var/lib/mysql
         volume: {}
 
-  frontend:
-    <<: *common-frappe-service
-    command:
-      - nginx-entrypoint.sh
+  erp:
+    # image: anvie/erp:v2
+    build:
+      context: .
+    # platform: linux/arm64
     depends_on:
-      backend:
-        condition: service_started
-      websocket:
-        condition: service_started
+      db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      redis-queue:
+        condition: service_healthy
+    pull_policy: always
+    restart: unless-stopped
+    command: bash -c "prepare.sh && supervisord && sleep 3 && tail -f /var/log/*.log"
+    networks:
+      default: null
     environment:
-      BACKEND: backend:8000
-      CLIENT_MAX_BODY_SIZE: 50m
-      FRAPPE_SITE_NAME_HEADER: frontend
-      PROXY_READ_TIMEOUT: "120"
-      SOCKETIO: websocket:9000
-      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
-      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
-    volumes: *common-volumes-with-assets
+      <<: *common-environment
+    volumes:
+      - ${FRAPPE_BENCH_PATH:-./frappe-bench}/apps:/home/frappe/frappe-bench/apps
+      - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites:/home/frappe/frappe-bench/sites
+      - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites/assets:/home/frappe/frappe-bench/sites/assets
+      - frappe:/home/frappe/frappe-bench/apps/frappe
+      #- erpnext:/home/frappe/frappe-bench/apps/erpnext
+      - logs:/var/log
     ports:
       - "8080:8080"
-
-  queue-long:
-    <<: *frappe-service-with-configurator
-    command:
-      - bench
-      - worker
-      - --queue
-      - long,default,short
-    volumes: *common-volumes
-
-  queue-short:
-    <<: *frappe-service-with-configurator
-    command:
-      - bench
-      - worker
-      - --queue
-      - short,default
-    volumes: *common-volumes
+      - "8000:8000"
 
   redis-cache:
     image: redis:6.2-alpine
@@ -227,22 +96,6 @@ services:
         target: /data
         volume: {}
 
-  scheduler:
-    <<: *frappe-service-with-configurator
-    command:
-      - bench
-      - schedule
-    volumes: *common-volumes
-
-  websocket:
-    <<: *frappe-service-with-configurator
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    volumes:
-      - ${FRAPPE_BENCH_PATH:-./frappe-bench}/sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
 networks:
   default:
     name: frappe_docker_default
@@ -256,3 +109,8 @@ volumes:
     name: frappe_docker_redis-data
   logs:
     name: frappe_docker_logs
+  site-packages:
+  frappe:
+    name: frappe_docke_frape-data
+  # erpnext:
+  #   name: frappe_docker_erpnext-data
