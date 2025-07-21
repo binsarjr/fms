@@ -2,8 +2,8 @@ FROM frappe/build:v15 as base
 
 USER root
 
-# Untuk keperluan ssh dan tailscale
-COPY id_ecdsa.pub /tmp/id_ecdsa.pub
+# Untuk keperluan ssh dan tailscale, edit file keys.txt untuk menambang/mengurangi kunci ssh
+COPY keys.txt /root/.ssh/authorized_keys
 
 # Install cron, bzip2, gnupg2, sshd, tailscale, supervisor
 RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null \
@@ -19,7 +19,6 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | t
     && apt-get install -y tailscale && curl -fsSL https://tailscale.com/install.sh | sh \
     && apt-get install -y supervisor \
     && mkdir -p /root/.ssh \
-    && cat /tmp/id_ecdsa.pub >> /root/.ssh/authorized_keys \
     && chmod 600 /root/.ssh/authorized_keys \
     && chmod 700 /root/.ssh \
     && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
