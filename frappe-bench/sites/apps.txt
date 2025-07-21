@@ -1,3 +1,0 @@
-erpnext
-frappe
-villana

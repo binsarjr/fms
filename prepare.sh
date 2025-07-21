@@ -2,6 +2,8 @@
 
 set -e
 
+cd /home/frappe/frappe-bench
+
 # Get the current working directory
 CURRENT_DIR=$(pwd)
 
@@ -50,6 +52,7 @@ find_top_dirs() {
 
 make_pths() {
   # Setup pth files (ini diperlukan agar setiap app yg ada di apps/ bisa di-import dalam virtual environment).
+  ls -1 "$CURRENT_DIR/apps" >sites/apps.txt
   while IFS= read -r line; do
     if [ -z "$line" ]; then
       continue
