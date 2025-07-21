@@ -1,4 +1,6 @@
 #!/bin/bash
+# Script ini harus dijalankan menggunakan user root.
+#
 
 set -e
 
@@ -152,3 +154,4 @@ configure_system
 make_pths
 
 chown -R frappe:frappe /home/frappe/frappe-bench/sites
+chown -R frappe:frappe /home/frappe/frappe-bench/apps
