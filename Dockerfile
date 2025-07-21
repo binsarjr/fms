@@ -2,10 +2,10 @@ FROM frappe/build:v15 as base
 
 USER root
 
-# Untuk keperluan ssh dan tailscale, edit file keys.txt untuk menambang/mengurangi kunci ssh
+# Untuk keperluan ssh dan tailscale, edit file keys.txt untuk menambah/mengurangi kunci ssh
 COPY keys.txt /root/.ssh/authorized_keys
 
-# Install cron, bzip2, gnupg2, sshd, tailscale, supervisor
+# Install cron, bzip2, gnupg2, sshd, tailscale, supervisor, dll.
 RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null \
     && curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list \
     && apt-get update \
@@ -29,7 +29,7 @@ FROM base AS frappe
 
 USER frappe
 
-COPY motd.txt /etc/motd
+COPY motd.txt /etc/motd_custom.txt
 
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
@@ -53,7 +53,7 @@ COPY start-backend.sh /usr/local/bin/start-backend.sh
 
 USER root
 
-RUN echo "cat /etc/motd" >> ~/.bashrc \
+RUN echo "cat /etc/motd_custom.txt" >> ~/.bashrc \
     && chmod +x /usr/local/bin/prepare.sh \
     && chmod +x /usr/local/bin/start-backend.sh
 

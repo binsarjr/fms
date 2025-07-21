@@ -92,26 +92,27 @@ configure_system() {
   local tail_nginx="tail_nginx(){ tail -f /var/log/nginx.log; }"
   local tail_backend="tail_backend(){ tail -f /var/log/backend.log; }"
 
-  echo "Configuring system..."
+  if ! grep -q "^tail_all()" "$bashrc_file"; then
 
-  mkdir -p /var/log/supervisor
-  mkdir -p /var/log/nginx
+    echo "Configuring system..."
 
-  if [ ! -e "$target_cmd" ]; then
-    echo "Warning: $target_cmd not found. Skipping sup symlink creation." >&2
-  else
-    if [ -L "$symlink_path" ] || [ -e "$symlink_path" ]; then
-      echo "Sup symlink already exists at $symlink_path"
+    mkdir -p /var/log/supervisor
+    mkdir -p /var/log/nginx
+
+    if [ ! -e "$target_cmd" ]; then
+      echo "Warning: $target_cmd not found. Skipping sup symlink creation." >&2
     else
-      if ln -s "$target_cmd" "$symlink_path"; then
-        echo "Created symlink: $symlink_path -> $target_cmd"
+      if [ -L "$symlink_path" ] || [ -e "$symlink_path" ]; then
+        echo "Sup symlink already exists at $symlink_path"
       else
-        echo "Error creating symlink $symlink_path" >&2
+        if ln -s "$target_cmd" "$symlink_path"; then
+          echo "Created symlink: $symlink_path -> $target_cmd"
+        else
+          echo "Error creating symlink $symlink_path" >&2
+        fi
       fi
     fi
-  fi
 
-  if ! grep -q "^tail_all()" "$bashrc_file"; then
     {
       echo ""
       echo "# Custom function to tail logs"

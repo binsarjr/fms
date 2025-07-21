@@ -64,6 +64,7 @@ services:
     ports:
       - "8080:8080"
       - "8000:8000"
+      - "222:22"
 
   redis-cache:
     image: redis:6.2-alpine
