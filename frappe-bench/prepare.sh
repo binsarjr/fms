@@ -59,12 +59,12 @@ make_pths() {
     name=$line
 
     # Create the filename with .pth extension
-    filename="/home/frappe/frappe-bench/env/lib/python3.11/site-packages/${name}.pth"
+    filename="${CURRENT_DIR}/env/lib/python3.11/site-packages/${name}.pth"
 
     echo "Linking app apps/$name ..."
 
     # Create pth link to the app
-    echo "/home/frappe/frappe-bench/apps/$name" >"$filename"
+    echo "${CURRENT_DIR}/apps/$name" >"$filename"
   done <sites/apps.txt
 }
 
@@ -95,10 +95,10 @@ containerize_dir() {
   fi
 }
 
-# Check each directory in the array
-for dir in "${DIRS_TO_CHECK[@]}"; do
-  containerize_dir "$dir"
-done
+## Check each directory in the array
+#for dir in "${DIRS_TO_CHECK[@]}"; do
+#  containerize_dir "$dir"
+#done
 
 make_pths
 

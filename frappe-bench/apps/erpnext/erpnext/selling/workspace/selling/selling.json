@@ -621,7 +621,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-07-04 14:35:58.204465",
+ "modified": "2025-07-21 22:32:59.878946",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -632,7 +632,7 @@
  "quick_lists": [],
  "restrict_to_domain": "",
  "roles": [],
- "sequence_id": 6.0,
+ "sequence_id": 11.0,
  "shortcuts": [
   {
    "color": "Grey",
@@ -667,6 +667,7 @@
    "format": "{} Open",
    "label": "Sales Analytics",
    "link_to": "Sales Analytics",
+   "report_ref_doctype": "Sales Order",
    "stats_filter": "{ \"Status\": \"Open\" }",
    "type": "Report"
   },
@@ -676,6 +677,5 @@
    "type": "Dashboard"
   }
  ],
- "title": "Selling",
- "type": "Workspace"
+ "title": "Selling"
 }
