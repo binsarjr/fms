@@ -129,6 +129,13 @@ configure_system() {
   fi
 }
 
+make_common_site_config() {
+  mkdir -p /home/frappe/frappe-bench/sites
+  if [ ! -f /home/frappe/frappe-bench/sites/common_site_config.json ]; then
+    echo "{}" >/home/frappe/frappe-bench/sites/common_site_config.json
+  fi
+}
+
 # containerize_dir() {
 #   local dir=$1
 #   if [ -d "$dir" ]; then
@@ -150,6 +157,7 @@ configure_system() {
 #   containerize_dir "$dir"
 # done
 
+make_common_site_config
 configure_system
 make_pths
 
