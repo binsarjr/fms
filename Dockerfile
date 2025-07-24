@@ -43,10 +43,7 @@ RUN bench init \
   --no-backups \
   --skip-redis-config-generation \
   --verbose \
-  /home/frappe/frappe-bench && \
-  cd /home/frappe/frappe-bench && \
-  echo "{}" > sites/common_site_config.json
-
+  /home/frappe/frappe-bench
 
 RUN touch /home/frappe/first_run
 COPY prepare.sh /usr/local/bin/prepare.sh
