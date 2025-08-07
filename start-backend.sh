@@ -18,20 +18,20 @@ echo "Whoami: $(whoami)"
 cd $CURRENT_DIR || exit 1
 
 configure_bench() {
-  echo "Configuring bench settings..."
-  cd "$CURRENT_DIR" || exit 1
-  ls -1 apps >sites/apps.txt 2>/dev/null || true
-  echo "DB_HOST: $DB_HOST"
-  echo "REDIS_CACHE: $REDIS_CACHE"
-  echo "REDIS_CACHE: $REDIS_QUEUE"
-  echo "SOCKETIO_PORT: $SOCKETIO_PORT"
-  bench set-config -g db_host $DB_HOST
-  bench set-config -gp db_port $DB_PORT
-  bench set-config -g redis_cache "redis://$REDIS_CACHE"
-  bench set-config -g redis_queue "redis://$REDIS_QUEUE"
-  bench set-config -g redis_socketio "redis://$REDIS_QUEUE"
-  bench set-config -gp socketio_port $SOCKETIO_PORT
   if [ ! -f "$INSTALLED_MARKER" ]; then
+    echo "Configuring bench settings..."
+    cd "$CURRENT_DIR" || exit 1
+    ls -1 apps >sites/apps.txt 2>/dev/null || true
+    echo "DB_HOST: $DB_HOST"
+    echo "REDIS_CACHE: $REDIS_CACHE"
+    echo "REDIS_CACHE: $REDIS_QUEUE"
+    echo "SOCKETIO_PORT: $SOCKETIO_PORT"
+    bench set-config -g db_host $DB_HOST
+    bench set-config -gp db_port $DB_PORT
+    bench set-config -g redis_cache "redis://$REDIS_CACHE"
+    bench set-config -g redis_queue "redis://$REDIS_QUEUE"
+    bench set-config -g redis_socketio "redis://$REDIS_QUEUE"
+    bench set-config -gp socketio_port $SOCKETIO_PORT
     echo "Building site (frontend) for the first time..."
     bench setup requirements
     ls -1 apps
@@ -39,8 +39,8 @@ configure_bench() {
     bench new-site frontend --force --mariadb-user-host-login-scope='%' --admin-password=$ROOT_PASSWORD --db-root-username=$ROOT_USERNAME --db-root-password=$ROOT_PASSWORD $(echo $(ls -1 ./apps | xargs -n1 echo --install-app))
     bench build
     echo "System installed." >"$INSTALLED_MARKER"
+    echo "Configuration completed."
   fi
-  echo "Configuration completed."
 }
 
 configure_bench
