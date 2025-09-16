@@ -1,3 +1,3 @@
 [submodule "frappe-bench/apps/erpnext"]
 	path = frappe-bench/apps/erpnext
-	url = git@github.com:neuversity/erpnext.git
+	url = https://github.com/binsarjr/erpnext.git
