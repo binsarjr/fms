@@ -1,0 +1,2 @@
+# This file ensures the sites directory is tracked by git
+# The directory structure is preserved but generated files are ignored via .gitignore

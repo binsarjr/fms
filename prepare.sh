@@ -132,7 +132,17 @@ configure_system() {
 make_common_site_config() {
   mkdir -p /home/frappe/frappe-bench/sites
   if [ ! -f /home/frappe/frappe-bench/sites/common_site_config.json ]; then
-    echo "{}" >/home/frappe/frappe-bench/sites/common_site_config.json
+    # Generate config dengan environment variables dari Docker
+    cat > /home/frappe/frappe-bench/sites/common_site_config.json << EOF
+{
+  "db_host": "${DB_HOST:-db}",
+  "db_port": ${DB_PORT:-3306},
+  "redis_cache": "redis://${REDIS_CACHE:-redis-cache:6379}",
+  "redis_queue": "redis://${REDIS_QUEUE:-redis-queue:6379}",
+  "redis_socketio": "redis://${REDIS_QUEUE:-redis-queue:6379}",
+  "socketio_port": ${SOCKETIO_PORT:-9000}
+}
+EOF
   fi
 }
 

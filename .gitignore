@@ -1,11 +1,43 @@
-**/sites/frontend
+# Sites directory - track folders but exclude generated files
+frappe-bench/sites/*
+!frappe-bench/sites/.gitkeep
 
-**/node_modules
-**/site-packages
-**/__pycache__
+# Environment directory - track folder but exclude contents
+frappe-bench/env/*
+!frappe-bench/env/.gitkeep
 
+# Apps generated files
+frappe-bench/apps/*/node_modules/
+frappe-bench/apps/*/__pycache__/
+frappe-bench/apps/*/*.pyc
+frappe-bench/apps/*/*.py~
+
+# Logs and temporary files
+frappe-bench/logs/
+*.log
+.tmp
+
+# Cache and assets
+frappe-bench/sites/assets/
+frappe-bench/sites/*/public/
+frappe-bench/sites/*/private/
+frappe-bench/sites/*/locks/
+
+# Configuration files (generated)
+frappe-bench/sites/common_site_config.json
+frappe-bench/sites/apps.json
+frappe-bench/sites/apps.txt
+frappe-bench/sites/*/site_config.json
 
 # Environment Variables
 .env
 
+# OS files
 .DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
