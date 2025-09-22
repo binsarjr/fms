@@ -6,12 +6,6 @@ frappe-bench/sites/*
 frappe-bench/env/*
 !frappe-bench/env/.gitkeep
 
-# Apps generated files
-frappe-bench/apps/*/node_modules/
-frappe-bench/apps/*/__pycache__/
-frappe-bench/apps/*/*.pyc
-frappe-bench/apps/*/*.py~
-
 # Logs and temporary files
 frappe-bench/logs/
 *.log
