@@ -173,3 +173,18 @@ make_pths
 
 chown -R frappe:frappe /home/frappe/frappe-bench/sites
 chown -R frappe:frappe /home/frappe/frappe-bench/apps
+
+# Install sudo and configure frappe user sudo access
+install_sudo() {
+    if ! command -v sudo &> /dev/null; then
+        echo "Installing sudo..."
+        apt-get update -qq
+        apt-get install -y sudo
+    fi
+
+    # Add frappe user to sudo group with passwordless sudo access
+    echo "frappe ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/frappe
+    chmod 0440 /etc/sudoers.d/frappe
+}
+
+install_sudo
